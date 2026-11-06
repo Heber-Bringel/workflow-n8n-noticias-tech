@@ -1,0 +1,16 @@
+# Ambientes virtuais e dependências
+.env
+*.env.local
+*.log
+node_modules/
+__pycache__/
+*.pyc
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/

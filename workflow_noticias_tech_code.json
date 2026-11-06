@@ -1,0 +1,110 @@
+{
+  "name": "Recebimento de Notícias Tech por E-mail (com Code Node)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 9,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://g1.globo.com/rss/g1/tecnologia/"
+      },
+      "id": "b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
+      "name": "RSS Read",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Seção 3.7 da apostila: Manipulação de Array de itens no n8n\n// Extrai todos os itens retornados pelo feed RSS e retém apenas as 3 mais recentes\nconst todosOsItens = $input.all();\nconst top3Noticias = todosOsItens.slice(0, 3);\n\n// Retorna os itens formatados com as variáveis esperadas\nreturn top3Noticias.map((item, index) => {\n  return {\n    json: {\n      indice: index + 1,\n      title: item.json.title || \"Sem título\",\n      link: item.json.link || \"\",\n      pubDate: item.json.pubDate || \"\",\n      descricao: item.json.contentSnippet || item.json.description || \"\"\n    }\n  };\n});"
+      },
+      "id": "c3d4e5f6-a7b8-9c0d-1e2f-3a4b5c6d7e8f",
+      "name": "Code - Limit Top 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "seu-email@gmail.com",
+        "toEmail": "seu-email@gmail.com",
+        "subject": "=[Tech News #{{ $json[\"indice\"] }}] {{ $json[\"title\"] }}",
+        "text": "=Notícia de Tecnologia #{{ $json[\"indice\"] }}\n\n{{ $json[\"title\"] }}\n\nLink direto:\n{{ $json[\"link\"] }}\n\nData de publicação: {{ $json[\"pubDate\"] }}\n\n---\nEnviado automaticamente pelo pipeline n8n",
+        "html": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 8px; background-color: #fafafa;\">\n  <div style=\"background-color: #0b57d0; padding: 14px 18px; border-radius: 6px; color: #ffffff;\">\n    <h2 style=\"margin: 0; font-size: 18px;\">🚀 Tech News Diário (#{{ $json[\"indice\"] }}/3)</h2>\n  </div>\n  <div style=\"padding: 20px 0;\">\n    <h3 style=\"color: #202124; font-size: 17px; margin-top: 0;\">{{ $json[\"title\"] }}</h3>\n    <p style=\"color: #5f6368; font-size: 14px;\">Data da matéria: <strong>{{ $json[\"pubDate\"] }}</strong></p>\n    <p style=\"margin-top: 24px;\">\n      <a href=\"{{ $json[\"link\"] }}\" target=\"_blank\" style=\"background-color: #0b57d0; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;\">Acessar Notícia Completa ➔</a>\n    </p>\n  </div>\n  <hr style=\"border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;\" />\n  <p style=\"font-size: 12px; color: #9aa0a6; margin: 0;\">Pipeline autônomo n8n com nó Code de limitação | Unidade III</p>\n</div>",
+        "options": {}
+      },
+      "id": "d4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f9a",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Code - Limit Top 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Limit Top 3": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo"
+  }
+}
