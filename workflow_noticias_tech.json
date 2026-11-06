@@ -37,12 +37,12 @@
     },
     {
       "parameters": {
-        "maxItems": 3
+        "jsCode": "// Extrai as 3 notícias mais recentes e consolida o relatório em 1 único e-mail\nconst todosOsItens = $input.all();\nconst top3 = todosOsItens.slice(0, 3);\n\nlet itensHtml = '';\nlet itensTexto = '';\n\ntop3.forEach((item, index) => {\n  const titulo = item.json.title || 'Sem título';\n  const link = item.json.link || '#';\n  const pubDate = item.json.pubDate ? new Date(item.json.pubDate).toLocaleString('pt-BR') : 'Recente';\n  \n  itensHtml += `\n    <div style=\"margin-bottom: 16px; padding: 14px 18px; border-left: 4px solid #0b57d0; background-color: #ffffff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);\">\n      <h3 style=\"margin: 0 0 6px 0; font-size: 16px; color: #1a73e8;\">\n        ${index + 1}. ${titulo}\n      </h3>\n      <p style=\"margin: 0 0 10px 0; font-size: 12px; color: #666;\">📅 Publicado em: ${pubDate}</p>\n      <a href=\"${link}\" target=\"_blank\" style=\"display: inline-block; padding: 8px 14px; background-color: #0b57d0; color: #ffffff; text-decoration: none; border-radius: 4px; font-size: 13px; font-weight: bold;\">\n        Acessar Notícia Completa ➔\n      </a>\n    </div>\n  `;\n  \n  itensTexto += `${index + 1}. ${titulo}\nLink: ${link}\nData: ${pubDate}\n\n`;\n});\n\nconst hoje = new Date().toLocaleDateString('pt-BR');\nconst assunto = `[Tech News] Boletim Diário - Top 3 Notícias (${hoje})`;\n\nconst corpoHtml = `\n  <div style=\"font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; padding: 25px; background-color: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px;\">\n    <div style=\"background-color: #0b57d0; padding: 16px; border-radius: 6px; color: #ffffff; text-align: center;\">\n      <h2 style=\"margin: 0; font-size: 20px;\">📰 Relatório Diário de Notícias Tech</h2>\n      <p style=\"margin: 5px 0 0 0; font-size: 13px; opacity: 0.9;\">3 Notícias Mais Recentes | ${hoje}</p>\n    </div>\n    <div style=\"padding: 20px 0;\">\n      ${itensHtml}\n    </div>\n    <hr style=\"border: none; border-top: 1px solid #ddd; margin: 20px 0;\" />\n    <div style=\"text-align: center; color: #777; font-size: 12px;\">\n      <p style=\"margin: 0;\">Pipeline Autônomo n8n & RSS | Tópicos Especiais em Programação</p>\n      <p style=\"margin: 4px 0 0 0;\">IFPI Campus Piripiri - TADS</p>\n    </div>\n  </div>\n`;\n\nconst corpoTexto = `Relatório Diário de Notícias Tech - Top 3 (${hoje})\n\n${itensTexto}---\nPipeline Autônomo n8n | TEP - IFPI Campus Piripiri`;\n\nreturn [\n  {\n    json: {\n      subject: assunto,\n      text: corpoTexto,\n      html: corpoHtml,\n      totalNews: top3.length,\n      date: hoje\n    }\n  }\n];"
       },
       "id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
-      "name": "Limit",
-      "type": "n8n-nodes-base.limit",
-      "typeVersion": 1,
+      "name": "Code - Limit & Consolida Top 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         660,
         300
@@ -52,9 +52,9 @@
       "parameters": {
         "fromEmail": "seu-email@gmail.com",
         "toEmail": "seu-email@gmail.com",
-        "subject": "=[Tech News] {{ $json[\"title\"] }}",
-        "text": "=Notícia de Tecnologia do Dia\n\n{{ $json[\"title\"] }}\n\nLeia a matéria completa em:\n{{ $json[\"link\"] }}\n\n---\nEnviado automaticamente pelo pipeline n8n",
-        "html": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 8px; background-color: #fafafa;\">\n  <div style=\"background-color: #0b57d0; padding: 14px 18px; border-radius: 6px; color: #ffffff;\">\n    <h2 style=\"margin: 0; font-size: 18px;\">🚀 Tech News Diário</h2>\n  </div>\n  <div style=\"padding: 20px 0;\">\n    <h3 style=\"color: #202124; font-size: 17px; margin-top: 0;\">{{ $json[\"title\"] }}</h3>\n    <p style=\"color: #5f6368; font-size: 14px;\">Clique no botão abaixo para conferir a notícia na íntegra:</p>\n    <p style=\"margin-top: 24px;\">\n      <a href=\"{{ $json[\"link\"] }}\" target=\"_blank\" style=\"background-color: #0b57d0; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;\">Acessar Notícia Completa ➔</a>\n    </p>\n  </div>\n  <hr style=\"border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;\" />\n  <p style=\"font-size: 12px; color: #9aa0a6; margin: 0;\">Pipeline de automação autônoma construído no n8n | Unidade III</p>\n</div>",
+        "subject": "={{ $json[\"subject\"] }}",
+        "text": "={{ $json[\"text\"] }}",
+        "html": "={{ $json[\"html\"] }}",
         "options": {}
       },
       "id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
@@ -83,14 +83,14 @@
       "main": [
         [
           {
-            "node": "Limit",
+            "node": "Code - Limit & Consolida Top 3",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Limit": {
+    "Code - Limit & Consolida Top 3": {
       "main": [
         [
           {
