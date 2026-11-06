@@ -4,7 +4,7 @@
 ### Curso Superior de Tecnologia em Análise e Desenvolvimento de Sistemas (TADS)
 ### Disciplina: Tópicos Especiais em Programação
 ### Docente: Prof. Me. Maykol Sampaio
-### Discente: Heber Bringel
+### Discente: Héber Bringel
 
 ---
 
